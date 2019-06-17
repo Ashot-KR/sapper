@@ -1,5 +1,21 @@
 # sapper changelog
 
+## 0.27.4
+
+* Update devalue
+
+
+## 0.27.3
+
+* Accommodate Svelte 3.5.0
+
+
+## 0.27.2
+
+* Fix routes with regular expressions ([#707](https://github.com/sveltejs/sapper/issues/707))
+* Fix `sapper build --output` option ([#723](https://github.com/sveltejs/sapper/pull/723))
+
+
 ## 0.27.1
 
 * Prevent infinite loop if `preload` errors ([#677](https://github.com/sveltejs/sapper/pull/677))
