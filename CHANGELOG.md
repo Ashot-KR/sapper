@@ -1,5 +1,87 @@
 # sapper changelog
 
+## 0.27.16
+
+* Handle errors thrown from session seeding function ([#1273](https://github.com/sveltejs/sapper/issues/1273))
+
+
+## 0.27.15
+
+* Allow `session` handler to return a Promise ([#740](https://github.com/sveltejs/sapper/issues/740))
+
+## 0.27.14
+
+* Prevent client-side app from re-rendering over a server-generated error ([#710](https://github.com/sveltejs/sapper/issues/710))
+* Better handle I/O backpressure when exporting sites ([#851](https://github.com/sveltejs/sapper/issues/851), [#893](https://github.com/sveltejs/sapper/issues/893))
+* In SSR, include `Authorization` header when including cookies ([#880](https://github.com/sveltejs/sapper/issues/880))
+* In SSR, default to `credentials: 'same-origin'` ([#881](https://github.com/sveltejs/sapper/issues/881))
+* Do not restart dev server while it is already restarting ([#920](https://github.com/sveltejs/sapper/issues/920))
+* Avoid console error in dev mode when reloading page ([#981](https://github.com/sveltejs/sapper/issues/981))
+* Correctly handle `src` or `dest` being the current directory ([#1069](https://github.com/sveltejs/sapper/issues/1069))
+* Log details of Rollup errors instead of swallowing them ([#1221](https://github.com/sveltejs/sapper/issues/1221), [#1234](https://github.com/sveltejs/sapper/issues/1234))
+* Avoid corrupting binary files during build ([#1245](https://github.com/sveltejs/sapper/issues/1245))
+
+
+## 0.27.13
+
+* Fix multiple slugs in a single URL segment ([#547](https://github.com/sveltejs/sapper/issues/547))
+* Fix erroneously notifying a component's `$page` subscribers of the upcoming URL upon leaving a route ([#633](https://github.com/sveltejs/sapper/issues/633))
+* Maintain scroll location when refreshing page ([#784](https://github.com/sveltejs/sapper/issues/784))
+* Support detecting bundler by `*.config.ts` files ([#1005](https://github.com/sveltejs/sapper/pull/1005))
+* When exporting, create regular files instead of directories for page routes ending in `.html` ([#1043](https://github.com/sveltejs/sapper/issues/1043))
+* Preserve timestamps when copying files during `export` ([#1110](https://github.com/sveltejs/sapper/issues/1110))
+* Fix issue with scrolling to deeplinks ([#1139](https://github.com/sveltejs/sapper/pull/1139))
+
+
+## 0.27.12
+
+* Fix missing MIME types when serving files from `/client/` ([#1136](https://github.com/sveltejs/sapper/issues/1136))
+
+
+## 0.27.11
+
+* Fix vulnerability when serving `/client/...` files — **Please upgrade!**
+* Revert CSS handling change from 0.27.10
+
+
+## 0.27.10
+
+* Fix component styles being duplicated between `client.css` and `main.css` ([#1076](https://github.com/sveltejs/sapper/issues/1076))
+
+
+## 0.27.9
+
+* Recheck whether a component has a `preload` whenever the file changes ([#611](https://github.com/sveltejs/sapper/issues/611))
+
+
+## 0.27.8
+
+* Enable sourcemaps in dev mode only by default ([#590](https://github.com/sveltejs/sapper/issues/590))
+* Don't silently ignore unknown options passed to CLI (again) ([#729](https://github.com/sveltejs/sapper/issues/729))
+
+
+## 0.27.7
+
+* Revert erroring on unknown options passed to CLI, pending upstream bug investigation
+
+
+## 0.27.6
+
+* Various fixes for CSS sourcemaps ([#421](https://github.com/sveltejs/sapper/issues/421), [#537](https://github.com/sveltejs/sapper/issues/537), [#808](https://github.com/sveltejs/sapper/issues/808))
+* Add `export` option `--entry` for specifying multiple entry points ([#749](https://github.com/sveltejs/sapper/issues/749))
+* Fix paths to component CSS in legacy build ([#775](https://github.com/sveltejs/sapper/issues/775))
+
+
+## 0.27.5
+
+* Fix exported sites with links to static files ([#572](https://github.com/sveltejs/sapper/issues/572))
+* Properly update manifest data during changes in dev mode ([#713](https://github.com/sveltejs/sapper/pull/713))
+* Don't silently ignore unknown options passed to CLI ([#729](https://github.com/sveltejs/sapper/issues/729))
+* Add `host` value to `page` store, giving uniform access to `req.headers.host`/`location.host` ([#735](https://github.com/sveltejs/sapper/issues/735))
+* Log uncaught exceptions in server routes ([#782](https://github.com/sveltejs/sapper/issues/782))
+* Fix default error template ([#817](https://github.com/sveltejs/sapper/issues/817))
+
+
 ## 0.27.4
 
 * Update devalue

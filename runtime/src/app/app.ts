@@ -13,6 +13,7 @@ import {
 	Page
 } from './types';
 import goto from './goto';
+import { page_store } from './stores';
 
 declare const __SAPPER__;
 export const initial_data = typeof __SAPPER__ !== 'undefined' && __SAPPER__;
@@ -25,7 +26,7 @@ let current_branch = [];
 let current_query = '{}';
 
 const stores = {
-	page: writable({}),
+	page: page_store({}),
 	preloading: writable(null),
 	session: writable(initial_data && initial_data.session)
 };
@@ -54,11 +55,6 @@ export let prefetching: {
 } = null;
 export function set_prefetching(href, promise) {
 	prefetching = { href, promise };
-}
-
-export let store;
-export function set_store(fn) {
-	store = fn(initial_data.store);
 }
 
 export let target: Node;
@@ -121,7 +117,7 @@ export function select_target(url: URL): Target {
 			const part = route.parts[route.parts.length - 1];
 			const params = part.params ? part.params(match) : {};
 
-			const page = { path, query, params };
+			const page = { host: location.host, path, query, params };
 
 			return { href: url.href, route, match, page };
 		}
@@ -129,7 +125,7 @@ export function select_target(url: URL): Target {
 }
 
 export function handle_error(url: URL) {
-	const { pathname, search } = location;
+	const { host, pathname, search } = location;
 	const { session, preloaded, status, error } = initial_data;
 
 	if (!root_preloaded) {
@@ -154,7 +150,7 @@ export function handle_error(url: URL) {
 
 	}
 	const query = extract_query(search);
-	render(null, [], props, { path: pathname, query, params: {} });
+	render(null, [], props, { host, path: pathname, query, params: {} });
 }
 
 export function scroll_state() {
@@ -205,7 +201,7 @@ export async function navigate(target: Target, id: number, noscroll?: boolean, h
 			if (deep_linked) {
 				scroll = {
 					x: 0,
-					y: deep_linked.getBoundingClientRect().top
+					y: deep_linked.getBoundingClientRect().top + scrollY
 				};
 			}
 		}
@@ -232,6 +228,7 @@ async function render(redirect: Redirect, branch: any[], props: any, page: Page)
 		props.level0 = {
 			props: await root_preloaded
 		};
+		props.notify = stores.page.notify;
 
 		// first load — remove SSR'd <head> contents
 		const start = document.querySelector('#sapper-head-start');
@@ -301,6 +298,7 @@ export async function hydrate_target(target: Target): Promise<{
 
 	if (!root_preloaded) {
 		root_preloaded = initial_data.preloaded[0] || root_preload.call(preload_context, {
+			host: page.host,
 			path: page.path,
 			query: page.query,
 			params: {}
@@ -338,6 +336,7 @@ export async function hydrate_target(target: Target): Promise<{
 			if (ready || !initial_data.preloaded[i + 1]) {
 				preloaded = preload
 					? await preload.call(preload_context, {
+						host: page.host,
 						path: page.path,
 						query: page.query,
 						params: part.params ? part.params(target.match) : {}

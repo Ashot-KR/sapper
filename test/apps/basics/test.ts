@@ -239,6 +239,15 @@ describe('basics', function() {
 		);
 	});
 
+	it('can access host through page store', async () => {
+		await r.load('/host');
+
+		assert.equal(await r.text('h1'), 'localhost');
+
+		await r.sapper.start();
+		assert.equal(await r.text('h1'), 'localhost');
+	});
+
 	// skipped because Nightmare doesn't seem to focus the <a> correctly
 	it('resets the active element after navigation', async () => {
 		await r.load('/');
@@ -358,6 +367,20 @@ describe('basics', function() {
 			await r.text('h1'),
 			'y:1'
 		);
+	});
+
+	it('page store functions as expected', async () => {
+		await r.load('/store');
+		await r.sapper.start();
+
+		assert.equal(await r.text('h1'), 'Test');
+		assert.equal(await r.text('h2'), 'Called 1 time');
+
+		await r.page.click('a[href="store/result"]');
+		await r.wait();
+
+		assert.equal(await r.text('h1'), 'Result');
+		assert.equal(await r.text('h2'), 'Called 1 time');
 	});
 
 	it('survives the tests with no server errors', () => {

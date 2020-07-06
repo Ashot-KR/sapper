@@ -1,7 +1,11 @@
 import * as path from 'path';
+import color from 'kleur';
 import relative from 'require-relative';
+import { RollupError } from 'rollup/types';
 import { CompileResult } from './interfaces';
 import RollupResult from './RollupResult';
+
+const stderr = console.error.bind(console);
 
 let rollup: any;
 
@@ -61,6 +65,7 @@ export default class RollupCompiler {
 
 	async compile(): Promise<CompileResult> {
 		const config = await this._;
+		const sourcemap = config.output.sourcemap;
 
 		const start = Date.now();
 
@@ -68,23 +73,18 @@ export default class RollupCompiler {
 			const bundle = await rollup.rollup(config);
 			await bundle.write(config.output);
 
-			return new RollupResult(Date.now() - start, this);
+			return new RollupResult(Date.now() - start, this, sourcemap);
 		} catch (err) {
-			if (err.filename) {
-				// TODO this is a bit messy. Also, can
-				// Rollup emit other kinds of error?
-				err.message = [
-					`Failed to build — error in ${err.filename}: ${err.message}`,
-					err.frame
-				].filter(Boolean).join('\n');
-			}
+			// flush warnings
+			stderr(new RollupResult(Date.now() - start, this, sourcemap).print());
 
-			throw err;
+			handleError(err);
 		}
 	}
 
 	async watch(cb: (err?: Error, stats?: any) => void) {
 		const config = await this._;
+		const sourcemap = config.output.sourcemap;
 
 		const watcher = rollup.watch(config);
 
@@ -113,7 +113,7 @@ export default class RollupCompiler {
 
 				case 'ERROR':
 					this.errors.push(event.error);
-					cb(null, new RollupResult(Date.now() - this._start, this));
+					cb(null, new RollupResult(Date.now() - this._start, this, sourcemap));
 					break;
 
 				case 'START':
@@ -126,7 +126,7 @@ export default class RollupCompiler {
 					break;
 
 				case 'BUNDLE_END':
-					cb(null, new RollupResult(Date.now() - this._start, this));
+					cb(null, new RollupResult(Date.now() - this._start, this, sourcemap));
 					break;
 
 				default:
@@ -166,4 +166,41 @@ export default class RollupCompiler {
 
 		return config;
 	}
+}
+
+
+// copied from https://github.com/rollup/rollup/blob/master/cli/logging.ts
+// and updated so that it will compile here
+
+export function handleError(err: RollupError, recover = false) {
+	let description = err.message || err;
+	if (err.name) description = `${err.name}: ${description}`;
+	const message =
+		(err.plugin
+			? `(plugin ${(err).plugin}) ${description}`
+			: description) || err;
+
+	stderr(color.bold().red(`[!] ${color.bold(message.toString())}`));
+
+	if (err.url) {
+		stderr(color.cyan(err.url));
+	}
+
+	if (err.loc) {
+		stderr(`${(err.loc.file || err.id)!} (${err.loc.line}:${err.loc.column})`);
+	} else if (err.id) {
+		stderr(err.id);
+	}
+
+	if (err.frame) {
+		stderr(color.dim(err.frame));
+	}
+
+	if (err.stack) {
+		stderr(color.dim(err.stack));
+	}
+
+	stderr('');
+
+	if (!recover) process.exit(1);
 }

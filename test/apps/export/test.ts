@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { walk } from '../../utils';
 import * as api from '../../../api';
+import { readFileSync } from 'fs'
 
 describe('export', function() {
 	this.timeout(10000);
@@ -22,6 +23,7 @@ describe('export', function() {
 		for (let a = 1; a <= 20; a += 1) {
 			boom.push(`boom/${a}/index.html`);
 			for (let b = 1; b <= 20; b += 1) {
+				boom.push(`boom/${a}/${b}.html`);
 				boom.push(`boom/${a}/${b}/index.html`);
 			}
 		}
@@ -39,9 +41,16 @@ describe('export', function() {
 			'index.html',
 			'service-worker-index.html',
 			'service-worker.js',
+			'test.pdf',
 			...boom
 		].sort());
 	});
+
+	it('does not corrupt binary file links (like pdf)', () => {
+		const input = readFileSync(`${__dirname}/static/test.pdf`)
+		const output = readFileSync(`${__dirname}/__sapper__/export/test.pdf`)
+		assert.ok(input.equals(output))
+	})
 
 	// TODO test timeout, basepath
 });
